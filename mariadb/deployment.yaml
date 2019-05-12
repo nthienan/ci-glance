@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  labels:
+    app: mariadb
+    role: db
+    component: ci-glance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+      role: db
+      component: ci-glance
+  template:
+    metadata:
+      labels:
+        app: mariadb
+        role: db
+        component: ci-glance
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:10.4.4
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb
+              key: ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: grafana
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+      securityContext:
+        fsGroup: 1000

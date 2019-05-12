@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+    role: dashboard
+    component: ci-glance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      role: dashboard
+      component: ci-glance
+  template:
+    metadata:
+      labels:
+        app: grafana
+        role: dashboard
+        component: ci-glance
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:6.1.6
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: ADMIN_PASSWORD
+        - name: GF_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb
+              key: ROOT_PASSWORD
+        volumeMounts:
+        - name: config
+          mountPath: /etc/grafana
+        - name: datasource
+          mountPath: /etc/grafana/provisioning/datasources
+      volumes:
+      - name: config
+        configMap:
+          name: grafana
+          items:
+          - key: grafana.ini
+            path: grafana.ini
+      - name: datasource
+        configMap:
+          name: grafana
+          items:
+          - key: datasources.yaml
+            path: datasources.yaml

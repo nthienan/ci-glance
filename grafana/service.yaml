@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+    role: dashboard
+    component: ci-glance
+spec:
+  selector:
+    app: grafana
+    role: dashboard
+    component: ci-glance
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
